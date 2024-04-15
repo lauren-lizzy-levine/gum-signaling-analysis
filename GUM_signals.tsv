@@ -17397,7 +17397,6 @@ GUM_voyage_vavau	voyage	purpose	purpose-attribute	syn	inf	109
 GUM_voyage_vavau	voyage	purpose	purpose-attribute	syn	inf	111
 GUM_voyage_vavau	voyage	organization	organization-heading	grf	ly	
 GUM_voyage_vavau	voyage	attribution	attribution-positive	lex	indwd	121
-GUM_voyage_vavau	voyage	attribution	attribution-positive	nsr	nsr	
 GUM_voyage_vavau	voyage	attribution	attribution-positive	sem	atsrc	117-120
 GUM_voyage_vavau	voyage	attribution	attribution-positive	syn	rpr	122
 GUM_voyage_vavau	voyage	context	context-background	lex	indwd	123
@@ -24787,7 +24786,6 @@ GUM_conversation_erasmus	conversation	attribution	attribution-positive	lex	indwd
 GUM_conversation_erasmus	conversation	attribution	attribution-positive	sem	atsrc	1033
 GUM_conversation_erasmus	conversation	attribution	attribution-positive	lex	indwd	1036
 GUM_conversation_erasmus	conversation	attribution	attribution-positive	syn	rpr	1043-1044,1047,1051
-GUM_conversation_erasmus	conversation	elaboration	elaboration-attribute	nsr	nsr	
 GUM_conversation_erasmus	conversation	attribution	attribution-positive	sem	atsrc	1052-1055
 GUM_conversation_erasmus	conversation	restatement	restatement-repetition	sem	lxchn	1047,1051
 GUM_conversation_erasmus	conversation	restatement	restatement-repetition	sem	rpt	1048,1052-1055
@@ -26415,7 +26413,6 @@ GUM_whow_arrogant	whow	elaboration	elaboration-attribute	syn	relcl	386-387
 GUM_whow_arrogant	whow	joint	joint-list	dm	and	391
 GUM_whow_arrogant	whow	contingency	contingency-condition	dm	if	394
 GUM_whow_arrogant	whow	context	context-background	sem	rpt	405-406,451-453
-GUM_whow_arrogant	whow	causal	causal-cause	nsr	nsr	430-431
 GUM_whow_arrogant	whow	causal	causal-cause	dm	because	407
 GUM_whow_arrogant	whow	elaboration	elaboration-attribute	grf	prn	417,428
 GUM_whow_arrogant	whow	elaboration	elaboration-attribute	syn	mdf	418

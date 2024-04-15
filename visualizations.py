@@ -115,5 +115,5 @@ def create_signal_proportion_graphs():
 	return
 
 if __name__ == "__main__":
-	create_signal_proportion_graphs()
-	#create_signal_proportion_genre_graphs()
+	#create_signal_proportion_graphs()
+	create_signal_proportion_genre_graphs()
