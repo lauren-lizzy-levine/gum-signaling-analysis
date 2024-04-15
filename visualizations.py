@@ -2,10 +2,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def signal_proportion_by_genre(datafile, relation_list, genre_group_name, outfile):
+def signal_proportion_by_genre(datafile, relation_list, relation_group_name, outfile):
 	df = pd.read_csv(datafile, sep="\t")
 	# Filter to have only genres in genre_list
 	df = df[df['COARSE_RELATION'].isin(relation_list)]
+	# Change oph label to dm
+	df['SIGNAL_TYPE'].replace('orp', 'dm', inplace=True)
+	# Get value counts
+	value_counts = df['GENRE'].value_counts()
+	group_names = value_counts.index.tolist()
 	# Add constant value for each row to count the occurrences
 	df['Value'] = 1
 	# Calculate proportions
@@ -13,14 +18,19 @@ def signal_proportion_by_genre(datafile, relation_list, genre_group_name, outfil
 	df['Proportion'] = df['Value'] / df['Total']
 	# Pivot the DataFrame for plotting
 	pivot_df = df.pivot_table(index='GENRE', columns='SIGNAL_TYPE', values='Proportion', aggfunc='sum')
+	# Update pivot rows (genres) with occurrence counts
+	new_row_names = {}
+	for genre in group_names:
+		new_row_names[genre] = genre + ' (' + str(value_counts[genre]) + ')'
+	pivot_df.rename(index=new_row_names, inplace=True)
 	#print(pivot_df)
 	# Plot
 	pivot_df.plot(kind='bar', stacked=True)
 	plt.xlabel('Genre')
 	plt.ylabel('Proportion')
-	plt.title('Proportion of Signal Type to GUM Genre for ' + genre_group_name + ' Relations')
+	plt.title('Proportion of Signal Type per GUM Genre for ' + relation_group_name + ' Relations')
 	plt.legend(title='Signal Type', bbox_to_anchor=(1, 1))
-	plt.xticks(rotation=45)
+	plt.xticks(rotation=60)
 	plt.savefig('visualizations/' + outfile, bbox_inches='tight')  # Save the plot as a PNG file with tight bounding box
 	#plt.show()
 
@@ -49,6 +59,11 @@ def signal_proportion_by_relation(datafile, genre_list, genre_group_name, outfil
 	df = pd.read_csv(datafile, sep="\t")
 	# Filter to have only genres in genre_list
 	df = df[df['GENRE'].isin(genre_list)]
+	# Change oph label to dm
+	df['SIGNAL_TYPE'].replace('orp', 'dm', inplace=True)
+	# Get value counts
+	value_counts = df['COARSE_RELATION'].value_counts()
+	group_names = value_counts.index.tolist()
 	# Add constant value for each row to count the occurrences
 	df['Value'] = 1
 	# Calculate proportions
@@ -56,14 +71,19 @@ def signal_proportion_by_relation(datafile, genre_list, genre_group_name, outfil
 	df['Proportion'] = df['Value'] / df['Total']
 	# Pivot the DataFrame for plotting
 	pivot_df = df.pivot_table(index='COARSE_RELATION', columns='SIGNAL_TYPE', values='Proportion', aggfunc='sum')
+	# Update pivot rows (coarse_relation) with occurrence counts
+	new_row_names = {}
+	for relation in group_names:
+		new_row_names[relation] = relation + ' (' + str(value_counts[relation]) + ')'
+	pivot_df.rename(index=new_row_names, inplace=True)
 	#print(pivot_df)
 	# Plot
 	pivot_df.plot(kind='bar', stacked=True)
 	plt.xlabel('Coarse Relation')
 	plt.ylabel('Proportion')
-	plt.title('Proportion of Signal Type to Coarse Relation for GUM ' + genre_group_name)
+	plt.title('Proportion of Signal Type per Coarse Relation for GUM ' + genre_group_name)
 	plt.legend(title='Signal Type', bbox_to_anchor=(1, 1))
-	plt.xticks(rotation=45)
+	plt.xticks(rotation=60)
 	plt.savefig('visualizations/' + outfile, bbox_inches='tight')  # Save the plot as a PNG file with tight bounding box
 	#plt.show()
 
@@ -91,8 +111,9 @@ def create_signal_proportion_graphs():
 	spoken_genres = ["court", "interview", "podcast", "speech", "conversation", "vlog"]
 	signal_proportion_by_relation(datafile, written_genres, "Written", "written_relation_signal.png")
 	signal_proportion_by_relation(datafile, spoken_genres, "Spoken", "spoken_relation_signal.png")
+	signal_proportion_by_relation(datafile, written_genres + spoken_genres, "All Data", "everything_relation_signal.png")
 	return
 
 if __name__ == "__main__":
-	#create_signal_proportion_graphs()
-	create_signal_proportion_genre_graphs()
+	create_signal_proportion_graphs()
+	#create_signal_proportion_genre_graphs()
