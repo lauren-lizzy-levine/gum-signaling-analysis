@@ -89,7 +89,24 @@ def rank_variation(pair_distances):
 		#('attribution', 0.11417348527138776)
 		#('adversative', 0.08437153764023812)
 		#('evaluation', 0.02908569613791581)
-	# Make visualizaions
+
+	return relation_jsd_sorted_descending
+
+def visualize_ranking(ranking, title, outfile):
+	categories = [x[0] for x in ranking]
+	values = [x[1] for x in ranking]
+	# bar plot
+	plt.figure(figsize=(8, 6))  # Optional: adjust the size of the plot
+	plt.bar(categories, values, color='skyblue')
+
+	# title and labels
+	plt.title(title)
+	plt.xlabel('Relations')
+	plt.ylabel('Avg. Pairwise JSD between Genres')
+	plt.xticks(rotation=45)
+
+	plt.savefig('visualizations/' + outfile, bbox_inches='tight')  # Save the plot as a PNG file with tight bounding box
+	#plt.show()
 
 	return
 
@@ -113,7 +130,7 @@ def make_distance_matrix(distances):
 	return np.array(distance_matrix), genres
 
 
-def make_dendrogram(relation, pair_distances):
+def make_dendrogram(relation, pair_distances, outfile):
 	# Will illustrate which genres signal the gives relation most similarly/differently
 	# Make distance matrix
 	distance_matrix, genres = make_distance_matrix(pair_distances[relation])
@@ -121,18 +138,22 @@ def make_dendrogram(relation, pair_distances):
 	linkage_matrix = linkage(dists, "average")
 	# Make visualizaion
 	dendrogram(linkage_matrix, labels=genres)
-	plt.title('Signaling similarity between genres for relation: ' + relation)
+	plt.title('Signaling Similarity between Genres for Relation: ' + relation.capitalize())
 	plt.xticks(rotation=45)
-	plt.show()
+	plt.tight_layout()
+	plt.savefig('visualizations/' + outfile)  # Save the plot as a PNG file with tight bounding box
+	#plt.show()
 	return
 
 def coarse_level_variation():
 	datafile = "GUM_signals.tsv"
 	freq_counts = frequency_counts_coarserel_genre(datafile)
 	pair_distances = pairwise_jsd(freq_counts)
-	#rank_variation(pair_distances)
-	make_dendrogram("restatement", pair_distances)
-	#print(freq_counts)
+	ranking = rank_variation(pair_distances)
+	visualize_ranking(ranking, "Inter-Genre Variation of Coarse Relations", "coarse_rel_inter_genre_var.png")
+	dendro_relations = ["organization", "explanation", "causal"]
+	for rel in dendro_relations:
+		make_dendrogram(rel, pair_distances, "dendrogram_" + rel + ".png")
 
 
 if __name__ == "__main__":
