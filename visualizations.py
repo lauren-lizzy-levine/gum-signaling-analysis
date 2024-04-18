@@ -2,10 +2,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def signal_proportion_by_genre(datafile, relation_list, relation_group_name, outfile):
+def signal_proportion_by_genre(datafile, relation_list, relation_group_name, outfile, coarse=False):
 	df = pd.read_csv(datafile, sep="\t")
 	# Filter to have only genres in genre_list
-	df = df[df['COARSE_RELATION'].isin(relation_list)]
+	if coarse:
+		df = df[df['COARSE_RELATION'].isin(relation_list)]
+	else:
+		df = df[df['RELATION'].isin(relation_list)]
 	# Change oph label to dm
 	df['SIGNAL_TYPE'].replace('orp', 'dm', inplace=True)
 	# Get value counts
@@ -36,22 +39,36 @@ def signal_proportion_by_genre(datafile, relation_list, relation_group_name, out
 
 	return
 
+
+def fine_grained_signal_proportion_genre_graphs():
+	datafile = "GUM_signals.tsv"
+	signal_proportion_by_genre(datafile, ["organization-heading"], "Organization-heading", "organization-heading_genre_signal.png")
+	signal_proportion_by_genre(datafile, ["organization-phatic"], "Organization-phatic", "organization-phatic_genre_signal.png")
+	signal_proportion_by_genre(datafile, ["organization-preparation"], "Organization-preparation", "organization-preparation_genre_signal.png")
+	signal_proportion_by_genre(datafile, ["explanation-evidence"], "Explanation-evidence", "explanation-evidence_genre_signal.png")
+	signal_proportion_by_genre(datafile, ["explanation-justify"], "Explanation-justify", "explanation-justify_genre_signal.png")
+	signal_proportion_by_genre(datafile, ["explanation-motivation"], "Explanation-motivation", "explanation-motivation_genre_signal.png")
+	signal_proportion_by_genre(datafile, ["causal-cause"], "Causal-cause", "causal-cause_genre_signal.png")
+	signal_proportion_by_genre(datafile, ["causal-result"], "Causal-result", "causal-result_genre_signal.png")
+	return
+
+
 def create_signal_proportion_genre_graphs():
 	datafile = "GUM_signals.tsv"
-	signal_proportion_by_genre(datafile, ["adversative"], "Adversative", "adversative_genre_signal.png")
-	signal_proportion_by_genre(datafile, ["attribution"], "Attribution", "attribution_genre_signal.png")
-	signal_proportion_by_genre(datafile, ["causal"], "Causal", "causal_genre_signal.png")
-	signal_proportion_by_genre(datafile, ["context"], "Context", "context_genre_signal.png")
-	signal_proportion_by_genre(datafile, ["contingency"], "Contingency", "contingency_genre_signal.png")
-	signal_proportion_by_genre(datafile, ["elaboration"], "Elaboration", "elaboration_genre_signal.png")
-	signal_proportion_by_genre(datafile, ["evaluation"], "Evaluation", "evaluation_genre_signal.png")
-	signal_proportion_by_genre(datafile, ["explanation"], "Explanation", "explanation_genre_signal.png")
-	signal_proportion_by_genre(datafile, ["joint"], "Joint", "jont_genre_signal.png")
-	signal_proportion_by_genre(datafile, ["mode"], "Mode", "mode_genre_signal.png")
-	signal_proportion_by_genre(datafile, ["organization"], "Organization", "organization_genre_signal.png")
-	signal_proportion_by_genre(datafile, ["purpose"], "Purpose", "purpose_genre_signal.png")
-	signal_proportion_by_genre(datafile, ["restatement"], "Restatement", "restatement_genre_signal.png")
-	signal_proportion_by_genre(datafile, ["topic"], "Topic", "topic_genre_signal.png")
+	signal_proportion_by_genre(datafile, ["adversative"], "Adversative", "adversative_genre_signal.png", coarse=True)
+	signal_proportion_by_genre(datafile, ["attribution"], "Attribution", "attribution_genre_signal.png", coarse=True)
+	signal_proportion_by_genre(datafile, ["causal"], "Causal", "causal_genre_signal.png", coarse=True)
+	signal_proportion_by_genre(datafile, ["context"], "Context", "context_genre_signal.png", coarse=True)
+	signal_proportion_by_genre(datafile, ["contingency"], "Contingency", "contingency_genre_signal.png", coarse=True)
+	signal_proportion_by_genre(datafile, ["elaboration"], "Elaboration", "elaboration_genre_signal.png", coarse=True)
+	signal_proportion_by_genre(datafile, ["evaluation"], "Evaluation", "evaluation_genre_signal.png", coarse=True)
+	signal_proportion_by_genre(datafile, ["explanation"], "Explanation", "explanation_genre_signal.png", coarse=True)
+	signal_proportion_by_genre(datafile, ["joint"], "Joint", "jont_genre_signal.png", coarse=True)
+	signal_proportion_by_genre(datafile, ["mode"], "Mode", "mode_genre_signal.png", coarse=True)
+	signal_proportion_by_genre(datafile, ["organization"], "Organization", "organization_genre_signal.png", coarse=True)
+	signal_proportion_by_genre(datafile, ["purpose"], "Purpose", "purpose_genre_signal.png", coarse=True)
+	signal_proportion_by_genre(datafile, ["restatement"], "Restatement", "restatement_genre_signal.png", coarse=True)
+	signal_proportion_by_genre(datafile, ["topic"], "Topic", "topic_genre_signal.png", coarse=True)
 	return
 
 
@@ -116,4 +133,5 @@ def create_signal_proportion_graphs():
 
 if __name__ == "__main__":
 	#create_signal_proportion_graphs()
-	create_signal_proportion_genre_graphs()
+	#create_signal_proportion_genre_graphs()
+	fine_grained_signal_proportion_genre_graphs()

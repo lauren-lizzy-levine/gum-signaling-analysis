@@ -8,7 +8,7 @@ import seaborn as sns
 sns.set_style('dark')
 
 
-def frequency_counts_coarserel_genre(infile):
+def frequency_counts_rel_genre(infile, coarse=False):
 	lines = []
 	with open(infile, "r") as file:
 		reader = csv.reader(file, delimiter='\t')
@@ -18,46 +18,53 @@ def frequency_counts_coarserel_genre(infile):
 	freq_counts = {}
 	for line in lines:
 		genre = line[1]
-		coarse_relation = line[2]
+		if coarse:
+			relation = line[2] # coarse relation
+		else:
+			relation = line[3]
 		signal_type = line[4]
 		if signal_type == 'orp':
 			signal_type = 'dm'
-		if coarse_relation in freq_counts:
-			if genre in freq_counts[coarse_relation]:
-				if signal_type in freq_counts[coarse_relation][genre]:
-					freq_counts[coarse_relation][genre][signal_type] += 1
+		if relation in freq_counts:
+			if genre in freq_counts[relation]:
+				if signal_type in freq_counts[relation][genre]:
+					freq_counts[relation][genre][signal_type] += 1
 				else:
-					freq_counts[coarse_relation][genre][signal_type] = 1
+					freq_counts[relation][genre][signal_type] = 1
 			else:
-				freq_counts[coarse_relation][genre] = {signal_type: 1}
+				freq_counts[relation][genre] = {signal_type: 1}
 		else:
-			freq_counts[coarse_relation] = {genre: {signal_type: 1}}
+			freq_counts[relation] = {genre: {signal_type: 1}}
 
 	# fill in zeros
 	singal_types = ['dm', 'grf', 'lex', 'mrf', 'num', 'ref', 'sem', 'syn']
-	for coarse_relation in freq_counts:
-		for genre in freq_counts[coarse_relation]:
+	for relation in freq_counts:
+		for genre in freq_counts[relation]:
 			for sig_type in singal_types:
-				if sig_type not in freq_counts[coarse_relation][genre]:
-					freq_counts[coarse_relation][genre][sig_type] = 0
+				if sig_type not in freq_counts[relation][genre]:
+					freq_counts[relation][genre][sig_type] = 0
+
+	# eliminate topic-solutionhood because it only occura 8 times
+	if "topic-solutionhood" in freq_counts:
+		freq_counts.pop("topic-solutionhood")
 
 	return freq_counts
 
 def pairwise_jsd(freq_counts):
 	pair_distances = {}
 	singal_types = ['dm', 'grf', 'lex', 'mrf', 'num', 'ref', 'sem', 'syn']
-	for coarse_relation in freq_counts:
-		pair_distances[coarse_relation] = {}
+	for relation in freq_counts:
+		pair_distances[relation] = {}
 		genre_pairs_seen = set()
-		for genre1 in freq_counts[coarse_relation]:
-			for genre2 in freq_counts[coarse_relation]:
+		for genre1 in freq_counts[relation]:
+			for genre2 in freq_counts[relation]:
 				if (genre2, genre1) not in genre_pairs_seen and genre1 != genre2:
 					genre1_counts = []
 					genre2_counts = []
 					for sig in singal_types:
-						genre1_counts.append(freq_counts[coarse_relation][genre1][sig])
-						genre2_counts.append(freq_counts[coarse_relation][genre2][sig])
-					pair_distances[coarse_relation][(genre2, genre1)] = distance.jensenshannon(genre1_counts, genre2_counts)
+						genre1_counts.append(freq_counts[relation][genre1][sig])
+						genre2_counts.append(freq_counts[relation][genre2][sig])
+					pair_distances[relation][(genre2, genre1)] = distance.jensenshannon(genre1_counts, genre2_counts)
 					genre_pairs_seen.add((genre2, genre1))
 					genre_pairs_seen.add((genre1, genre2))
 
@@ -103,7 +110,8 @@ def visualize_ranking(ranking, title, outfile):
 	plt.title(title)
 	plt.xlabel('Relations')
 	plt.ylabel('Avg. Pairwise JSD between Genres')
-	plt.xticks(rotation=45)
+	plt.xticks(rotation=90)
+	plt.tight_layout()
 
 	plt.savefig('visualizations/' + outfile, bbox_inches='tight')  # Save the plot as a PNG file with tight bounding box
 	#plt.show()
@@ -111,12 +119,14 @@ def visualize_ranking(ranking, title, outfile):
 	return
 
 def make_distance_matrix(distances):
-	genres = ["academic", "bio", "conversation", "court", "essay", "fiction", "interview", 
-	"letter", "news", "podcast", "reddit", "speech", "textbook", "vlog", "voyage", "whow"]
+	#genres = ["academic", "bio", "conversation", "court", "essay", "fiction", "interview", 
+	#"letter", "news", "podcast", "reddit", "speech", "textbook", "vlog", "voyage", "whow"]
+	attested_genres = sorted(list(set([x[0] for x in distances.keys()] + [x[1] for x in distances.keys()])))
+
 	distance_matrix = []
-	for genre1 in genres:
+	for genre1 in attested_genres:
 		row = []
-		for genre2 in genres:
+		for genre2 in attested_genres:
 			if genre1 == genre2:
 				row.append(0)
 			elif (genre1, genre2) in distances:
@@ -127,7 +137,7 @@ def make_distance_matrix(distances):
 				print("DANGER")
 		distance_matrix.append(row)
 
-	return np.array(distance_matrix), genres
+	return np.array(distance_matrix), attested_genres
 
 
 def make_dendrogram(relation, pair_distances, outfile):
@@ -142,19 +152,45 @@ def make_dendrogram(relation, pair_distances, outfile):
 	plt.xticks(rotation=45)
 	plt.tight_layout()
 	plt.savefig('visualizations/' + outfile)  # Save the plot as a PNG file with tight bounding box
-	#plt.show()
+	plt.show()
 	return
 
 def coarse_level_variation():
 	datafile = "GUM_signals.tsv"
-	freq_counts = frequency_counts_coarserel_genre(datafile)
+	freq_counts = frequency_counts_rel_genre(datafile, coarse=True)
 	pair_distances = pairwise_jsd(freq_counts)
 	ranking = rank_variation(pair_distances)
 	visualize_ranking(ranking, "Inter-Genre Variation of Coarse Relations", "coarse_rel_inter_genre_var.png")
 	dendro_relations = ["organization", "explanation", "causal"]
 	for rel in dendro_relations:
 		make_dendrogram(rel, pair_distances, "dendrogram_" + rel + ".png")
+	return
 
+
+def fine_grained_level_variation():
+	datafile = "GUM_signals.tsv"
+	freq_counts = frequency_counts_rel_genre(datafile, coarse=False)
+	pair_distances = pairwise_jsd(freq_counts)
+	ranking = rank_variation(pair_distances)
+	visualize_ranking(ranking, "Inter-Genre Variation of Fine-Grained Relations", "fine_grained_rel_inter_genre_var.png")
+	organization_distances = {"organization-heading": pair_distances["organization-heading"], "organization-phatic": pair_distances["organization-phatic"], 
+							"organization-preparation": pair_distances["organization-preparation"]}
+	organization_ranking = rank_variation(organization_distances)
+	visualize_ranking(organization_ranking, "Inter-Genre Variation of Organization Relations", "organization_rel_inter_genre_var.png")
+	explanation_distances = {"explanation-evidence": pair_distances["explanation-evidence"], "explanation-justify": pair_distances["explanation-justify"], 
+							"explanation-motivation": pair_distances["explanation-motivation"]}
+	explanation_ranking = rank_variation(explanation_distances)
+	visualize_ranking(explanation_ranking, "Inter-Genre Variation of Explanation Relations", "explanation_rel_inter_genre_var.png")
+	causal_distances = {"causal-cause": pair_distances["causal-cause"], "causal-result": pair_distances["causal-result"]}
+	causal_ranking = rank_variation(causal_distances)
+	visualize_ranking(causal_ranking, "Inter-Genre Variation of Causal Relations", "causal_rel_inter_genre_var.png")
+	dendro_relations = ["organization-heading", "organization-phatic", "organization-preparation", "explanation-evidence",
+						 "explanation-justify", "explanation-motivation", "causal-cause", "causal-result"]
+	for rel in dendro_relations:
+		make_dendrogram(rel, pair_distances, "dendrogram_" + rel + ".png")
+
+	return
 
 if __name__ == "__main__":
-	coarse_level_variation()
+	#coarse_level_variation()
+	fine_grained_level_variation()
