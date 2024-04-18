@@ -18,3 +18,17 @@ python extract_signal_annotations.py
 ```
 Produces tsv file of signaling annotations.
 Columns: DOC\_NAME, GENRE, COARSE\_RELATION, RELATION, SIGNAL\_TYPE,	SIGNAL\_SUBTYPE, TOKEN\_IDS
+
+## variation analysis and visualization
+```
+python visualizations.py
+```
+Code for proportion visualizations.
+```
+python relation_variation.py
+```
+Code for inter-genre variation ranking and genre similarity dendrograms.
+```
+stats_data_analysis.R
+```
+Code for chi-squared tests and association plots.
