@@ -32,3 +32,6 @@ Code for inter-genre variation ranking and genre similarity dendrograms.
 stats_data_analysis.R
 ```
 Code for chi-squared tests and association plots.
+
+## Surprisal Experiments
+Please change the file path to the corresponding path for either causality data or explanation data (they are in the ```data_surprisal``` folder) and then run ```surprisal.ipynb```.
